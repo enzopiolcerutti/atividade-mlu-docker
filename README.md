@@ -19,11 +19,15 @@ Solução conteinerizada que treina um modelo para estimar o fechamento do BTC-U
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryTextColor": "#000000", "primaryBorderColor": "#000000", "lineColor": "#000000", "edgeLabelBackground": "#ffffff"}}}%%
 flowchart LR
-    D["Yahoo Finance<br/>BTC/USD diário"] -->|yfinance http| T["Treinamento<br/>Container"]
-    T -->|Salva| M["model.joblib"]
-    M -->|Carrega| A["API Flask<br/>Container"]
-    C["Cliente"] -->|Requisição JSON| A
-    A -->|Previsão JSON| C
+    subgraph FUNDO[" "]
+        direction LR
+        D["Yahoo Finance<br/>BTC/USD diário"] -->|yfinance http| T["Treinamento<br/>Container"]
+        T -->|Salva| M["model.joblib"]
+        M -->|Carrega| A["API Flask<br/>Container"]
+        C["Cliente"] -->|Requisição JSON| A
+        A -->|Previsão JSON| C
+    end
+    style FUNDO fill:#ffffff,stroke:#ffffff
 ```
 
 O modelo chega ao container de inferência, o trainer grava model.joblib na pasta ./models do host. O backend monta essa pasta como volume somente leitura em /models e carrega o arquivo, fazendo com que o modelo não seja copiado para a imagem.
@@ -37,14 +41,16 @@ sequenceDiagram
     participant A as API Flask
     participant M as Modelo
 
-    C->>A: GET /health
-    A-->>C: Status da API
+    rect rgb(255, 255, 255)
+        C->>A: GET /health
+        A-->>C: Status da API
 
-    C->>A: POST /predict · dados
-    A->>A: Valida dados
-    A->>M: Prever
-    M-->>A: Valor previsto
-    A-->>C: Previsão em JSON
+        C->>A: POST /predict · dados
+        A->>A: Valida dados
+        A->>M: Prever
+        M-->>A: Valor previsto
+        A-->>C: Previsão em JSON
+    end
 ```
 
 ## 2. Como reproduzir
