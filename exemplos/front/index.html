@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Front</title></head>
+<body>
+  <h1>Front (nginx)</h1>
+  <button onclick="prever()">Chamar /api/predict</button>
+  <pre id="out"></pre>
+  <script>
+    async function prever() {
+      const r = await fetch('/api/predict');
+      document.getElementById('out').textContent = JSON.stringify(await r.json());
+    }
+  </script>
+</body>
+</html>
